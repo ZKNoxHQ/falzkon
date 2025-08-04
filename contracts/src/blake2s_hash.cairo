@@ -1,4 +1,6 @@
 // Blake2s Hash Contract
+use core::blake::{blake2s_compress, blake2s_finalize};
+use core::box::BoxTrait;
 
 #[starknet::interface]
 pub trait IBlake2sHash<TContractState> {
@@ -19,6 +21,40 @@ pub mod Blake2sHash {
             'blake2s'
         }
     }
+}
+
+
+//salt: 40 bytes
+//msgHash: 32 bytes
+pub fn HashToPointBlake( salt: ByteArray,  msgHash: ByteArray) -> u256{
+    let mut input:ByteArray=salt;
+    input.append(@msgHash);
+
+
+    //todo convert input to boxTrait
+    //let mut state:u256=compute_keccak_byte_array(@input);
+    //convert state from u256 to byte array
+    let mut IV = BoxTrait::new([0_u32; 8]);
+    let mut msg = BoxTrait::new([0_u32; 16]);//msghash+salt=72 bytes = 18 u32
+
+    let mut state=blake2s_compress(IV, 18_u32, msg).unbox();
+
+    let mut i=0;
+   
+
+    let mut counter:u32=0;
+    let mut res:u256=0;
+    //todo append counter to state
+
+    while counter!=32{
+        msg=BoxTrait::new([counter; 16]);
+        let mut state=blake2s_compress(IV, 18_u32, msg).unbox();
+
+        counter=counter+1;
+
+    }
+    
+    return res;
 }
 
 #[cfg(test)]

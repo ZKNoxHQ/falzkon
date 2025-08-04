@@ -1,4 +1,8 @@
 // Keccak Hash Contract
+use core::byte_array::ByteArrayTrait;
+use core::keccak::{keccak_u256s_le_inputs, compute_keccak_byte_array};
+use core::to_byte_array::AppendFormattedToByteArray;
+
 
 #[starknet::interface]
 pub trait IKeccakHash<TContractState> {
@@ -53,6 +57,40 @@ pub mod KeccakHash {
             'keccak'
         }
     }
+}
+
+
+//salt: 40 bytes
+//msgHash: 32 bytes
+pub fn HashToPointRIP( salt: ByteArray,  msgHash: ByteArray) -> u256{
+    let mut input:ByteArray=salt;
+    input.append(@msgHash);
+
+    let mut state:u256=compute_keccak_byte_array(@input);
+    //convert state from u256 to byte array
+    
+    let mut a="";
+    let mut i=0;
+    while(i!=32){
+        let byte:u8=(state&0xff).try_into().unwrap();
+        state=state/256;
+        a.append_byte(byte);
+        i=i+1;
+    }
+
+    let mut counter:u8=0;
+    let mut res:u256=0;
+
+    while counter!=32{
+        let mut ctx=a.clone();
+        ctx.append_byte(counter);
+        counter=counter+1;
+        a.append_byte(counter);
+
+        res=compute_keccak_byte_array(@a);
+    }
+    
+    return res;
 }
 
 #[cfg(test)]
@@ -145,5 +183,24 @@ mod tests {
             compute_keccak_byte_array(@"hello-world"),
             0xd9ba3e823d55e5075f58ee022c16025c3abe8b41b95d7b4651a3cf8422ad1bd4,
         );
+    }
+
+    #[test]
+    fn test_keccak_byte_array2() {
+        let mut input: ByteArray = Default::default();
+    input.append_byte('a');
+    input.append_byte('0');
+    input.append_byte('0');
+    input.append_byte('0');
+
+    
+    
+    println!("{}",input);
+    
+    let  mut first_byte = input.at(0);
+    match first_byte {
+        Option::Some(byte) => println!("First byte: {}", byte),
+        Option::None => println!("No first byte"),
+        }
     }
 }
