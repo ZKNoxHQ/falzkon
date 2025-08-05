@@ -44,5 +44,4 @@ zntt_unroll_1x9 benefits from [ETHFALCON solidity](https://github.com/ZKNoxHQ/ET
 |------------------------|---------------------|---------------------|---------------------|
 | HashToPoint_RIP      | ZKNOX NTT       | 71.1M | :white_check_mark:|
 | HashToPoint_blake2s      | ZKNOX NTT       | WIP | WIP |
-
 | HashToPoint       | Starkware      | Not implemented |  X |
