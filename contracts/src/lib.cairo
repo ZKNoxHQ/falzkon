@@ -6,13 +6,13 @@
 pub mod keccak_hash;
 pub mod blake2s_hash;
 mod ntt;
-pub mod zknoxntt;
+pub mod zknox_ntt;
 //mod falcon;
 //mod ntt_test;
 
 
-pub mod level1x9;
-pub mod zknox_falcon;
+pub mod zknox_level1x9;
+pub mod zknox_hashToPoint;
 
 pub mod zq;
 pub mod ntt_constants;

@@ -135,10 +135,10 @@ mod tests {
     #[test]
     fn test_keccak_bytes_logic() {
         let mut input = ArrayTrait::new();
-        input.append(1);
-        input.append(2);
-        input.append(3);
-        input.append(4);
+        input.append(97);
+        input.append(98);
+        input.append(99);
+       
         
         let input_span = input.span();
         let mut packed: u256 = 0;
@@ -155,7 +155,7 @@ mod tests {
         u256_inputs.append(packed);
         let _result = keccak_u256s_le_inputs(u256_inputs.span());
         
-        println!("Keccak bytes hash: {}", _result);
+       //println!("***Keccak bytes hash: {}", _result);
     }
 
     #[test]
@@ -185,22 +185,7 @@ mod tests {
         );
     }
 
-    #[test]
-    fn test_keccak_byte_array2() {
-        let mut input: ByteArray = Default::default();
-    input.append_byte('a');
-    input.append_byte('0');
-    input.append_byte('0');
-    input.append_byte('0');
+   
 
     
-    
-    println!("{}",input);
-    
-    let  mut first_byte = input.at(0);
-    match first_byte {
-        Option::Some(byte) => println!("First byte: {}", byte),
-        Option::None => println!("No first byte"),
-        }
-    }
 }
