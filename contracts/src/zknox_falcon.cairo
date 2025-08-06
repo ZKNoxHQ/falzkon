@@ -18,7 +18,7 @@ pub const sigBound:i32 = 34034726;
 
 //reduce mod Q via 256 bit words
 pub fn reduc32(a: felt252)-> i32 {
-    let a32: i32 = a.into();
+    let a32: i32 = a.try_into().unwrap();
     let res = (a32 % Q).try_into().unwrap();
 
     return res;
@@ -41,12 +41,13 @@ fn zknox_nttHalfMul(mut a: Span<felt252>, mut ntt_b: Span<felt252>) ->Span<felt2
     return zknox_nttInv(tmp.span());
 }
 
-fn zknox_subvec(mut hashed: Span<felt252>, mut s1pk: Span<felt252>)->Span<felt252>{
+//return a reduced i32 span
+fn zknox_subvec(mut hashed: Span<felt252>, mut s1pk: Span<felt252>)->Span<i32>{
     let mut tmp=array![];
-
+    let mut i=0;
 
     while(i!=n){
-        tmp.append(reduc32(hashed+Q252 - (s1pk)));//hash-s1pk
+        tmp.append(reduc32(*hashed[i]+Q252 - (*s1pk[i])));//hash-s1.pk
 
         i=i+1;
     }
@@ -54,20 +55,20 @@ fn zknox_subvec(mut hashed: Span<felt252>, mut s1pk: Span<felt252>)->Span<felt25
     return tmp.span();
 }
 
-fn zknox_falcon_normalize(mut s1: Span<i32>, mut s2: Span<i32>, mut hashed: Span<i32>) -> bool{
+fn zknox_falcon_normalize(mut s0: Span<i32>, mut s1: Span<felt252>) -> bool{
 
     let mut i=0;
     let mut norm:i32=0;
 
     while i!=512{
-        let mut tmp=*s1[i];
+        let mut tmp:i32=(*s1[i]).try_into().unwrap();
         if tmp>qs1 {
             norm=norm+(Q-tmp)*(Q-tmp);
         }
         else{
             norm=norm+(tmp*tmp);
         }
-        tmp=*s2[i];
+        tmp=*s0[i];
         if tmp>qs1 {
             norm=norm+(Q-tmp)*(Q-tmp);
         }
@@ -83,15 +84,22 @@ fn zknox_falcon_normalize(mut s1: Span<i32>, mut s2: Span<i32>, mut hashed: Span
 
 
 //s2: 512 felts of value <12289 representing the s2 part of falcon signature
-//ntth: 512 felts of value <12289 representing the public key in ntt representation
+//nttpk: 512 felts of value <12289 representing the public key in ntt representation
 //result of hashToPoint(signature.salt, msgs, q, n);
-pub fn zknox_falcon_core(mut s2: Span<felt252>, mut ntth: Span<felt252>, mut hashed: Span<felt252>) -> Span<felt252> {
-    let mut tmp=array![];
+pub fn zknox_falcon_core(mut s1: Span<felt252>, mut nttpk: Span<felt252>, mut hashed: Span<felt252>) -> bool {
+   
+
+    let mut s1pk=zknox_nttHalfMul(s1, nttpk);
+    let mut s0=zknox_subvec(hashed, s1pk);//result is i32
+
+    let mut res:bool=zknox_falcon_normalize(s0,s1);
 
 
 
-    return tmp.span();
+    return res;
 }
 
 //test extracted from
 //https://github.com/ZKNoxHQ/ETHFALCON/blob/75f01adda9ab6da45f2dd800109cd94f24cf0668/test/ZKNOX_NTT.t.sol#L69
+
+//todo: test halfmul
