@@ -1,7 +1,7 @@
 
 
 
-//itera_tive version unrolled
+//iterative version unrolled of forward ntt
 pub fn zntt_unroll_l1to9(mut a: Span<felt252>) -> Span<felt252> {
     let mut tmp=array![];
    

@@ -46,7 +46,6 @@ pub fn HashToPoint_RIP( txhigh:felt252, txlow:felt252, salt_high:felt252, salt_l
     
     let mut tmp=compute_keccak_byte_array(@concat);//result is reverted
     
-
     let statel=tmp&0xffffffffffffffffffffffffffffffff;//low 128 bits
     let stateh=tmp/0x100000000000000000000000000000000;//high 128 bits
 
@@ -55,11 +54,7 @@ pub fn HashToPoint_RIP( txhigh:felt252, txlow:felt252, salt_high:felt252, salt_l
 
     let mut state="";
     state.append_word(statehi,16);
-
-   // println!("!!state:{}", state);
-    
     state.append_word(statelow,16);
-    //println!("!!state:{}", state);
     state=state.rev();
 
 
@@ -79,24 +74,19 @@ pub fn HashToPoint_RIP( txhigh:felt252, txlow:felt252, salt_high:felt252, salt_l
         concat.append_byte(counter);
 
         let statec=concat.clone();
-        //print_bytearray(statec, 40);
-
         tmp=compute_keccak_byte_array(@concat);//result is reverted
 
-        //println!("---------- output block={:x}", tmp);
+      
         let mut i=0;
-        //generate up to 16 chunks of 16 bits from 
+      
         while i!=16{
-            chunk_unreduced=(tmp&0xff)*256+(tmp&0xff00)/256;
-
-            //chunk_unreduced=(tmp&0xff);
-
+            chunk_unreduced=(tmp&0xff)*256+(tmp&0xff00)/256;//unrevert
             tmp=tmp/(256*256);
             
             if(chunk_unreduced<61445){
                 let mut chunk:felt252=(chunk_unreduced%Q256).try_into().unwrap();
                 vec.append(chunk);
-                //println!("chunk {} {:x} {}",nchunks,chunk_unreduced, chunk);
+               
                 nchunks=nchunks+1;
                 if(nchunks==512){
                     return vec.span();
