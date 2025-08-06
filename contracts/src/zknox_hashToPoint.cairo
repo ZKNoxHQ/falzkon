@@ -8,7 +8,6 @@
 use super::*;
 
 use core::keccak::{keccak_u256s_le_inputs, compute_keccak_byte_array};
-use crate::blake2s_hash::HashToPointBlake;
 pub const Q256: u256 = 12289;
 
 
@@ -99,12 +98,26 @@ pub fn HashToPoint_RIP( txhigh:felt252, txlow:felt252, salt_high:felt252, salt_l
     return vec.span();
 }
 
+fn HashToPointTrash()-> Span<felt252>{
+        let mut output = array![];
+    let mut i = 0;
+    while (i != 512){
+        output.append(i);
+        i = i+1;
+    }
+    return output.span();
+}
+
+
 #[cfg(test)]
 mod tests {
     use super::*;
-
+    use super::HashToPointTrash;
    
-
+    #[test]
+    fn test_cheap(){
+        let mut a = HashToPointTrash();
+    }
    
     #[test] 
     fn test_hash2Point(){

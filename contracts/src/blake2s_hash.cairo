@@ -86,10 +86,7 @@ fn bytearray_to_fixed_u32_array(input_bytes: ByteArray) -> Box<[u32; 16]> {
     BoxTrait::new(result)
 }
 
-//salt: 40 bytes
-//msgHash: 32 bytes
-pub fn HashToPointBlake(salt: ByteArray, msgHash: ByteArray)  -> Span<i32>{
-
+fn HashToPointBlake2s(salt: ByteArray, msgHash: ByteArray)-> Span<i32>{
     let mut output = array![];
     // inital state is the IV (xor with a parameter for the first value)
     let iv = BoxTrait::new([
@@ -163,22 +160,12 @@ pub fn HashToPointBlake(salt: ByteArray, msgHash: ByteArray)  -> Span<i32>{
     }
 
     return output.span();
-}
-
-fn HashToPointTrash()-> Span<i32>{
-        let mut output = array![];
-    let mut i = 0;
-    while (i != 512){
-        output.append(i);
-        i = i+1;
-    }
-    return output.span();
 
 }
 
 #[cfg(test)]
 mod tests {
-    use super::{HashToPointBlake, HashToPointTrash};
+    use super::HashToPointBlake2s;
 use core::blake::{blake2s_compress, blake2s_finalize};
     use core::box::BoxTrait;
 
@@ -274,12 +261,10 @@ use core::blake::{blake2s_compress, blake2s_finalize};
         );
     }
 
-
     #[test]
     fn test_hash_to_point_blake2s() {
-        // let salt = "1234123412341234123412341234123412341234"; // conversion from ascii so 40 bytes?
-        // let msgHash = "56785678567856785678567856785678"; // conversion from ascii so 32 bytes?
-        let mut polynomial = HashToPointTrash();
-        println!("{:?}", polynomial);
+        let salt = "1234123412341234123412341234123412341234"; // conversion from ascii so 40 bytes?
+        let msgHash = "56785678567856785678567856785678"; // conversion from ascii so 32 bytes?
+        let mut _a = HashToPointBlake2s(salt, msgHash);
     }
 }
