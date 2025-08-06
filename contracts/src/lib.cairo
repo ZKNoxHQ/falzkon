@@ -18,7 +18,7 @@ pub mod zknox_hashToPoint;
 pub mod zknox_falcon;
 
 
-//pub mod falcon;
+pub mod falcon;
 //pub use poseidon_hash::PoseidonHash;
 pub use keccak_hash::KeccakHash;
 pub use blake2s_hash::Blake2sHash;
