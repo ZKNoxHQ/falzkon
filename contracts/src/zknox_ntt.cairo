@@ -6,8 +6,8 @@
 
 use super::*;
 
-use crate::zknox_level1x9::{zknox_nttFW_unreduced};
-use crate::zknox_inv1x9::{zknox_nttInv_unreduced};
+use crate::zknox_nttFW_unroll::{zknox_nttFW_unreduced};
+use crate::zknox_nttInv_unroll::{zknox_nttInv_unreduced};
 
 pub const Q: felt252 = 12289;
 
@@ -273,7 +273,7 @@ fn znttInv(mut a: Span<felt252>) -> Span<felt252> {
 
 
 //reduce mod Q via 256 bit words
-fn reduc256(a: felt252)-> felt252 {
+pub fn reduc256(a: felt252)-> felt252 {
     let a256: u256 = a.into();
     let res = (a256 % Q256).try_into().unwrap();
 
