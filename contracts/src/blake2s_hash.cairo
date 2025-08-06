@@ -86,7 +86,7 @@ fn bytearray_to_fixed_u32_array(input_bytes: ByteArray) -> Box<[u32; 16]> {
     BoxTrait::new(result)
 }
 
-fn HashToPointBlake2s(salt: ByteArray, msgHash: ByteArray)-> Span<i32>{
+pub fn HashToPointBlake2s(salt: ByteArray, msgHash: ByteArray)-> Span<i32>{
     let mut output = array![];
     // inital state is the IV (xor with a parameter for the first value)
     let iv = BoxTrait::new([
@@ -98,16 +98,16 @@ fn HashToPointBlake2s(salt: ByteArray, msgHash: ByteArray)-> Span<i32>{
     // message to be hashed (40 + 32 = 72 bytes)
     let mut input_bytes:ByteArray=msgHash;
     input_bytes.append(@salt);
-    println!("input_bytes: {:?}", input_bytes);
+    //println!("input_bytes: {:?}", input_bytes);
     let mut msg = bytearray_to_fixed_u32_array(input_bytes);
-    println!("u32 array:");
-    println!("{:?}", msg);
+    //println!("u32 array:");
+    //println!("{:?}", msg);
     // msg is now made of 18 values (u32).
     let byte_count:u32 = 18;
     let mut state = blake2s_finalize(iv, byte_count, msg).unbox();
     let [a,b,c,d,e,f,g,h] = state;
 
-    println!("{:?}", state);
+    //println!("{:?}", state);
 
     let mut word_index: u32 = 0; // the word (between 0 and 7) that we can consume.
     let mut t_low: u16 = 0; // the value that can be reduced mod q
