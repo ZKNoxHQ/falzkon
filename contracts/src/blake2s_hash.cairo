@@ -1,5 +1,5 @@
 // Blake2s Hash Contract
-use core::blake::{blake2s_compress};
+use core::blake::blake2s_finalize;
 use core::box::BoxTrait;
 
 #[starknet::interface]
@@ -21,43 +21,150 @@ pub mod Blake2sHash {
     }
 }
 
+fn bytearray_bytes_to_box_u32(byte_array: ByteArray) -> Box<u32> {
+    // Extract bytes and reconstruct u32 (big-endian)
+    let mut value: u32 = 0;
+    let len = byte_array.len();
+    
+    // Ensure we don't read more than 4 bytes for u32
+    let bytes_to_read = if len > 4 { 4 } else { len };
+    
+    let mut i = 0;
+    while i < bytes_to_read {
+        let byte = byte_array[i];
+        value = value * 256 + byte.into();
+        i += 1;
+    };
+    
+    BoxTrait::new(value)
+}
+
+
+// WE HAVE 18 if SALT + MSG = 72 BYTES...
+fn bytearray_to_fixed_u32_array(input_bytes: ByteArray) -> Box<[u32; 16]> {
+    let byte_len = input_bytes.len();
+    let mut values = ArrayTrait::<u32>::new();
+    
+    // First, collect all u32 values in a dynamic array
+    let mut i = 0;
+    let mut values_created:u32 = 0;
+    
+    while i < byte_len && values_created < 16 {
+        let mut value: u32 = 0;
+        let mut byte_count:u32 = 0;
+        
+        while byte_count < 4 && i < byte_len {
+            let byte_val: u32 = input_bytes[i].into();
+            value = value * 8 + byte_val;
+            i += 1;
+            byte_count += 1;
+        };
+        
+        while byte_count < 4 {
+            value = value * 256;
+            byte_count += 1;
+        }
+        
+        values.append(value);
+        values_created += 1;
+    };
+    
+    // Pad with zeros
+    while values_created < 16 {
+        values.append(0);
+        values_created += 1;
+    }
+    
+    // Manually assign to fixed array (you'll need to expand this pattern)
+    let result = [
+        *values.at(0),  *values.at(1),  *values.at(2),  *values.at(3),
+        *values.at(4),  *values.at(5),  *values.at(6),  *values.at(7),
+        *values.at(8),  *values.at(9),  *values.at(10), *values.at(11),
+        *values.at(12), *values.at(13), *values.at(14), *values.at(15)
+    ];
+    
+    BoxTrait::new(result)
+}
 
 //salt: 40 bytes
 //msgHash: 32 bytes
-pub fn HashToPointBlake( salt: ByteArray,  msgHash: ByteArray) -> u256{
-    let mut input:ByteArray=salt;
-    input.append(@msgHash);
+pub fn HashToPointBlake( salt: ByteArray,  msgHash: ByteArray) -> Span<felt252>{
 
+    let mut output = array![]; // contains 512 elements mod q
 
-    //todo convert input to boxTrait
-    //let mut state:u256=compute_keccak_byte_array(@input);
-    //convert state from u256 to byte array
-    let mut IV = BoxTrait::new([0_u32; 8]);
-    let mut msg = BoxTrait::new([0_u32; 16]);//msghash+salt=72 bytes = 18 u32
+    // inital state is the IV (xor with a parameter for the first value)
+    let iv = BoxTrait::new([
+        0x6A09E667 ^ 0x01010020,
+        0xBB67AE85, 0x3C6EF372, 0xA54FF53A,
+        0x510E527F, 0x9B05688C, 0x1F83D9AB, 0x5BE0CD19,
+    ]);
 
-    //let mut state=blake2s_compress(IV, 18_u32, msg).unbox();
+    // message to be hashed (40 + 32 = 72 bytes)
+    let mut input_bytes:ByteArray=msgHash;
+    input_bytes.append(@salt);
+    println!("input_bytes: {:?}", input_bytes);
+    let mut msg = bytearray_to_fixed_u32_array(input_bytes);
+    println!("u32 array:");
+    println!("{:?}", msg);
+    // msg is now made of 18 values (u32).
+    let byte_count:u32 = 18;
+    let mut state = blake2s_finalize(iv, byte_count, msg).unbox();
+    println!("{:?}", state);
 
-    //let mut i=0;
-   
+    let mut word_index: u32 = 0; // the word (between 0 and 7) that we can consume.
+    let mut t: u16 = 0; // the value that can be reduced mod q
+    let mut _t:u32 = 0; // state word value
+    let mut low:bool = true; // indicates if we take the low or high bits of the current word
 
-    let mut counter:u32=0;
-    let mut res:u256=0;
-    //todo append counter to state
+    let mut coef: felt252 = 0;
 
-    while counter!=32{
-        msg=BoxTrait::new([counter; 16]);
-        //let mut state=blake2s_compress(IV, 18_u32, msg).unbox();
-
-        counter=counter+1;
-
+    let counter:u32 = 0;
+    // iterate until you fill the 512 field elements
+    let mut i = 0;
+    while (i != 511) {
+        let [a,b,c,d,e,f,g,h] = state;
+        if word_index == 8 {
+            // compute a new Blake2s hash
+            let new_state= BoxTrait::new([
+                a,b,c,d,
+                e,f,g,h,
+                counter,0,0,0,
+                0,0,0,0
+            ]);
+            // byte_count = 9 here but I am not sure.
+            state = blake2s_finalize(iv, 9, new_state).unbox();
+            word_index = 0;
+        }
+        // now, word is between 0 and 7
+        let words: Array<u32> = array![a, b, c, d, e, f, g, h];
+        let _t = words.get(word_index).unwrap().unbox();
+        if (low){
+            // t is the low part of _t in MSB
+            // 0xABCDEFGH -> GH00 + EF = GHEF
+            t = ((*_t & 0xFF) * 256 + (*_t & 0xFF00) / 256).try_into().unwrap();
+            low = false;
+        }
+        else {
+            // t is the high part of _t in MSB
+            // 0xABCDEFGH -> CD00 + AB = CDAB
+            t = ((*_t & 0xFF0000)/256 + (*_t & 0xFF000000)/16777216).try_into().unwrap();
+            low = true;
+            word_index = word_index + 1;
+        }
+        if(t < 61445){
+            coef = (t % 12289).try_into().unwrap();
+            output.append(coef);
+            i = i + 1;
+        }
     }
-    
-    return res;
+
+    return output.span();
 }
 
 #[cfg(test)]
 mod tests {
-    use core::blake::{blake2s_compress, blake2s_finalize};
+    use super::HashToPointBlake;
+use core::blake::{blake2s_compress, blake2s_finalize};
     use core::box::BoxTrait;
 
     #[test]
@@ -152,4 +259,13 @@ mod tests {
         );
     }
     
+    #[test]
+    fn test_hash_to_point_blake2s() {
+        let salt:ByteArray = "1234123412341234123412341234123412341234"; // conversion from ascii so 40 bytes?
+        println!("{:?}", salt);
+
+        let msgHash = "56785678567856785678567856785678"; // conversion from ascii so 32 bytes?
+        let polynomial = HashToPointBlake(salt, msgHash);
+        println!("{:?}", polynomial);
+    }
 }
