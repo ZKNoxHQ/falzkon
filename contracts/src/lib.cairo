@@ -13,7 +13,7 @@ pub mod zknox_ntt;
 
 pub mod zknox_level1x9;
 pub mod zknox_inv1x9;
-
+pub mod zknox_falcon;
 pub mod zknox_hashToPoint;
 
 pub mod zq;

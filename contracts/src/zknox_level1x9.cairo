@@ -1,8 +1,13 @@
+// SPDX-FileCopyrightText: 2025 ZKNOX.
+//
+// SPDX-License-Identifier: MIT
+
+//! Implementation of Number Theoretic Transform (NTT) based on ZKNOX implementation
 
 
 
 //iterative version unrolled of forward ntt
-pub fn zntt_unroll_l1to9(mut a: Span<felt252>) -> Span<felt252> {
+pub fn zknox_nttFW_unreduced(mut a: Span<felt252>) -> Span<felt252> {
     let mut tmp=array![];
    
     let mut Qshift:felt252=12289*16384;

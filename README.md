@@ -2,12 +2,14 @@
 
 FALZKON gather experimentations around falcon modification for ZKVM systems.
 
-zk Friendly FAlcon implementation 
 
 [Falcon signature scheme](https://falcon-sign.info/) is a post-quantum digital signature algorithm. 
 This repo provides:
 
 * on-chain [contracts](https://github.com/falzkon/cairo)
+
+!!! THIS CODE HASN'T BEEN AUDITED YET, DO NOT USE IN PRODUCTION, LOSS OF FUNDS WILL HAPPEN !!!
+
 
 ## INSTALLATION
 

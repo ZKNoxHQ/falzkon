@@ -1,5 +1,5 @@
 // Blake2s Hash Contract
-use core::blake::{blake2s_compress, blake2s_finalize};
+use core::blake::{blake2s_compress};
 use core::box::BoxTrait;
 
 #[starknet::interface]
@@ -35,9 +35,9 @@ pub fn HashToPointBlake( salt: ByteArray,  msgHash: ByteArray) -> u256{
     let mut IV = BoxTrait::new([0_u32; 8]);
     let mut msg = BoxTrait::new([0_u32; 16]);//msghash+salt=72 bytes = 18 u32
 
-    let mut state=blake2s_compress(IV, 18_u32, msg).unbox();
+    //let mut state=blake2s_compress(IV, 18_u32, msg).unbox();
 
-    let mut i=0;
+    //let mut i=0;
    
 
     let mut counter:u32=0;
@@ -46,7 +46,7 @@ pub fn HashToPointBlake( salt: ByteArray,  msgHash: ByteArray) -> u256{
 
     while counter!=32{
         msg=BoxTrait::new([counter; 16]);
-        let mut state=blake2s_compress(IV, 18_u32, msg).unbox();
+        //let mut state=blake2s_compress(IV, 18_u32, msg).unbox();
 
         counter=counter+1;
 
@@ -90,10 +90,8 @@ mod tests {
         let byte_count = 64_u32;
         
         let compress_result = blake2s_compress(state, byte_count, msg).unbox();
-        println!("Blake2s compress completed");
         
         let finalize_result = blake2s_finalize(state, byte_count, msg).unbox();
-        println!("Blake2s finalize completed");
         
         // Just verify they return different results
         assert_ne!(compress_result, finalize_result);
@@ -115,7 +113,6 @@ mod tests {
         // Different inputs should produce different outputs
         assert_ne!(result1, result2);
         
-        println!("Blake2s produces different outputs for different inputs");
     }
 
     #[test]

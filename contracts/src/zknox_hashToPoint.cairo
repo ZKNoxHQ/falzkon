@@ -5,11 +5,9 @@
 //! Implementation of Number Theoretic Transform (NTT) based on ZKNOX implementation
 
 // Remove unused imports for now
-// use crate::zknox_nttconstants::{psi_rev};
 use super::*;
 
 use core::keccak::{keccak_u256s_le_inputs, compute_keccak_byte_array};
-use crate::keccak_hash::HashToPointRIP;
 use crate::blake2s_hash::HashToPointBlake;
 pub const Q256: u256 = 12289;
 
