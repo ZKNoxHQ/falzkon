@@ -163,6 +163,85 @@ pub fn HashToPointBlake2s(salt: ByteArray, msgHash: ByteArray)-> Span<i32>{
 
 }
 
+
+pub fn HashToPointBlake2s_felt(salt: ByteArray, msgHash: ByteArray)-> Span<felt252>{
+    let mut output = array![];
+    // inital state is the IV (xor with a parameter for the first value)
+    let iv = BoxTrait::new([
+        0x6A09E667 ^ 0x01010020,
+        0xBB67AE85, 0x3C6EF372, 0xA54FF53A,
+        0x510E527F, 0x9B05688C, 0x1F83D9AB, 0x5BE0CD19,
+    ]);
+
+    // message to be hashed (40 + 32 = 72 bytes)
+    let mut input_bytes:ByteArray=msgHash;
+    input_bytes.append(@salt);
+    //println!("input_bytes: {:?}", input_bytes);
+    let mut msg = bytearray_to_fixed_u32_array(input_bytes);
+    //println!("u32 array:");
+    //println!("{:?}", msg);
+    // msg is now made of 18 values (u32).
+    let byte_count:u32 = 18;
+    let mut state = blake2s_finalize(iv, byte_count, msg).unbox();
+    let [a,b,c,d,e,f,g,h] = state;
+
+    //println!("{:?}", state);
+
+    let mut word_index: u32 = 0; // the word (between 0 and 7) that we can consume.
+    let mut t_low: u16 = 0; // the value that can be reduced mod q
+    let mut t_high: u16 = 0; // the value that can be reduced mod q
+    let mut _t:u32 = 0; // state word value
+
+    let mut coef: felt252 = 0;
+
+    let mut counter:u32 = 0;
+    // iterate until you fill the 512 field elements
+    let mut i = 0;
+    while (i != 512) {
+        while (word_index != 8) {
+            // now, word_index is between 0 and 7
+            let words: Array<u32> = array![a, b, c, d, e, f, g, h];
+            let _t = words.get(word_index).unwrap().unbox();
+            t_low = ((*_t & 0xFF) * 256 + (*_t & 0xFF00) / 256).try_into().unwrap();
+            if(t_low < 61445){
+                coef = (t_low % 12289).try_into().unwrap();
+                output.append(coef);
+                i = i + 1;
+                if (i == 512) {
+                    break;
+                }
+            }
+
+            t_high = ((*_t & 0xFF0000)/256 + (*_t & 0xFF000000)/16777216).try_into().unwrap();
+            if(t_high < 61445){
+                coef = (t_high % 12289).try_into().unwrap();
+                output.append(coef);
+                i = i + 1;
+                if (i == 512) {
+                    break;
+                }
+            }
+            word_index = word_index+1;
+        }
+        // compute a new Blake2s hash
+        let new_state= BoxTrait::new([
+            a,b,c,d,
+            e,f,g,h,
+            counter,0,0,0,
+            0,0,0,0
+        ]);
+        // byte_count = 9 here but I am not sure.
+        state = blake2s_finalize(iv, 9, new_state).unbox();
+        let [a,b,c,d,e,f,g,h] = state;
+        counter = counter + 1;
+        word_index = 0;
+    }
+
+    return output.span();
+
+}
+
+
 #[cfg(test)]
 mod tests {
     use super::HashToPointBlake2s;

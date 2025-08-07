@@ -23,11 +23,15 @@ This repo provides:
 
 ## BENCHMARKS
 
-### NTT
+
+### SUBFUNCTIONS
+
+#### NTT
 
 | Function                   | Description               | gas cost | Tests Status |
 |------------------------|---------------------|---------------------|---------------------|
-| zntt_unroll_1x9      | ZKNOX NTT       | 7.6M | :white_check_mark:|
+| zntt_nttFW      | ZKNOX NTT       | 9.6M | :white_check_mark:|
+| zntt_nttInv      | ZKNOX NTT       | 9.6M | :white_check_mark:|
 | ntt       | Starkware      | 36.6 M | :white_check_mark:|
 
 zntt_unroll_1x9 benefits from [ETHFALCON solidity](https://github.com/ZKNoxHQ/ETHFALCON/tree/main/src) return of experience, with the following optimizations:
@@ -39,7 +43,16 @@ zntt_unroll_1x9 benefits from [ETHFALCON solidity](https://github.com/ZKNoxHQ/ET
 - only one final modular reduction instead of each level of the ntt
 
 
-### HashToPoint
+#### Polynomial multiplication
+
+
+| Function                   | Description               | gas cost | Tests Status |
+|------------------------|---------------------|---------------------|---------------------|
+| zknox_nttHalfMul      | ZKNOX NTT       | 22 M | :white_check_mark:|
+
+
+
+#### HashToPoint
 
 
 | Function                   | Description               | gas cost | Tests Status |
@@ -49,10 +62,22 @@ zntt_unroll_1x9 benefits from [ETHFALCON solidity](https://github.com/ZKNoxHQ/ET
 | HashToPoint       | Starkware      | Not implemented |  N/A |
 
 
+
+
 ### FULL FALCON
 
+#### Pre-hashed
 
 | Function                   | Description               | gas cost | Tests Status |
 |------------------------|---------------------|---------------------|---------------------|
-| FALCON_CORE      | zknox      | | |
+| FALCON_CORE      | zknox      | 33M | WIP |
 | FALCON_CORE      | Starkware       |  277M | :white_check_mark:|
+
+
+#### With-hash
+
+| Function                   | Description               | gas cost | Tests Status |
+|------------------------|---------------------|---------------------|---------------------|
+| ETH_FALCON      | ZKnox: Use Keccak-ctr      | 102M | WIP |
+| ETH_FALCON      | Starkware: Use Keccak-ctr      | 340M | WIP |
+| FALZKON      | Use Blake2s-ctr       |  41M | WIP|
