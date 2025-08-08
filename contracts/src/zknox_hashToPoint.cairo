@@ -7,9 +7,13 @@
 // Remove unused imports for now
 use super::*;
 
+<<<<<<< HEAD
 use core::keccak::{keccak_u256s_le_inputs, compute_keccak_byte_array};
 use crate::blake2s_hash::HashToPointBlake2s; 
 
+=======
+use core::keccak::compute_keccak_byte_array;
+>>>>>>> 7a5d911 (remove warnings)
 pub const Q256: u256 = 12289;
 
 
@@ -72,7 +76,6 @@ pub fn HashToPoint_RIP( txhigh:felt252, txlow:felt252, salt_high:felt252, salt_l
         concat=state.clone();
         concat.append_byte(counter);
 
-        let mut statec=concat.clone();
         tmp=compute_keccak_byte_array(@concat);//result is reverted
 
       
@@ -100,63 +103,9 @@ pub fn HashToPoint_RIP( txhigh:felt252, txlow:felt252, salt_high:felt252, salt_l
     return vec.span();
 }
 
-
-
-// WE HAVE 18 if SALT + MSG = 72 BYTES...
-fn bytearray_to_fixed_u32_array(input_bytes: ByteArray) -> Box<[u32; 16]> {
-    let byte_len = input_bytes.len();
-    let mut values = ArrayTrait::<u32>::new();
-    
-    // First, collect all u32 values in a dynamic array
-    let mut i = 0;
-    let mut values_created:u32 = 0;
-    
-    while i < byte_len && values_created < 16 {
-        let mut value: u32 = 0;
-        let mut byte_count:u32 = 0;
-        
-        while byte_count < 4 && i < byte_len {
-            let byte_val: u32 = input_bytes[i].into();
-            value = value * 8 + byte_val;
-            i += 1;
-            byte_count += 1;
-        };
-        
-        while byte_count < 4 {
-            value = value * 256;
-            byte_count += 1;
-        }
-        
-        values.append(value);
-        values_created += 1;
-    };
-    
-    // Pad with zeros
-    while values_created < 16 {
-        values.append(0);
-        values_created += 1;
-    }
-    
-    // Manually assign to fixed array (you'll need to expand this pattern)
-    let result = [
-        *values.at(0),  *values.at(1),  *values.at(2),  *values.at(3),
-        *values.at(4),  *values.at(5),  *values.at(6),  *values.at(7),
-        *values.at(8),  *values.at(9),  *values.at(10), *values.at(11),
-        *values.at(12), *values.at(13), *values.at(14), *values.at(15)
-    ];
-    
-    BoxTrait::new(result)
-}
-
-
-
-
 #[cfg(test)]
 mod tests {
     use super::*;
-
-
-  
    
   
     #[test] 
