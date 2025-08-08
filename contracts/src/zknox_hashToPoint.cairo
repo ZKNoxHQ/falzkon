@@ -7,13 +7,7 @@
 // Remove unused imports for now
 use super::*;
 
-<<<<<<< HEAD
-use core::keccak::{keccak_u256s_le_inputs, compute_keccak_byte_array};
-use crate::blake2s_hash::HashToPointBlake2s; 
-
-=======
 use core::keccak::compute_keccak_byte_array;
->>>>>>> 7a5d911 (remove warnings)
 pub const Q256: u256 = 12289;
 
 
@@ -122,18 +116,6 @@ mod tests {
 
         assert_eq!(expected, res);
 
-    }
-
-
-    #[test] 
-    fn test_hash2PointBlake(){
-        
-        let mut salt:ByteArray="0123456789012345678901234567890123456789";
-        let mut msgHash:ByteArray="012345678901234567890123456789012";
-        let mut res=HashToPointBlake2s(salt, msgHash);
-
-        //println!("-------len:{}", res.len());
-        
     }
 
 

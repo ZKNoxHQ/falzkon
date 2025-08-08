@@ -6,7 +6,7 @@
 
 use crate::zknox_ntt::{zknox_nttInv, zknox_nttFW, reduc256};
 use crate::zknox_hashToPoint::HashToPoint_RIP;
-use crate::blake2s_hash::HashToPointBlake2s_felt;
+use crate::blake2s_hash::HashToPoint_Blake2s;
 
 
 pub const Q64: i64 = 12289;
@@ -118,7 +118,7 @@ pub fn zknox_falzkon_verify( salt: ByteArray, msgHash: ByteArray,
     mut s1: Span<felt252>, mut nttpk: Span<felt252> )->bool{
 
     //todo: control parameters
-    let mut hashed =HashToPointBlake2s_felt(msgHash, salt);
+    let mut hashed =HashToPoint_Blake2s(msgHash, salt);
     let res=zknox_falcon_core(s1, nttpk, hashed);
 
     return res;
