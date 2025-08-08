@@ -29,7 +29,7 @@ pub mod KeccakHash {
                 let input_span = input.span();
                 let mut packed: u256 = 0;
                 let mut i = 0;
-                while i < 4 && i < input.len() {
+                while i != 4 && i != input.len() {
                     let byte_val: u256 = (*input_span.at(i)).into();
                     packed = packed * 256 + byte_val;
                     i += 1;
