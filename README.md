@@ -58,7 +58,7 @@ zntt_unroll_1x9 benefits from [ETHFALCON solidity](https://github.com/ZKNoxHQ/ET
 | Function                   | Description               | gas cost | Tests Status |
 |------------------------|---------------------|---------------------|---------------------|
 | HashToPoint_RIP      | Keccak-CTR XOF       | 71.1M | :white_check_mark:|
-| HashToPoint_blake2s      | BLAKE-CTR XOF       | 10M | WIP |
+| HashToPoint_blake2s      | BLAKE-CTR XOF       | 10M | :white_check_mark: |
 | HashToPoint       | Starkware      | Not implemented |  N/A |
 
 
