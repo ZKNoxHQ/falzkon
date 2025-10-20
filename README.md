@@ -70,7 +70,7 @@ zntt_unroll_1x9 benefits from [ETHFALCON solidity](https://github.com/ZKNoxHQ/ET
 
 | Function                   | Description               | gas cost | Tests Status |
 |------------------------|---------------------|---------------------|---------------------|
-| FALCON_CORE      | zknox      | 33M | WIP |
+| FALCON_CORE      | zknox      | 33M | :white_check_mark: |
 | FALCON_CORE      | Starkware       |  277M | :white_check_mark:|
 
 
