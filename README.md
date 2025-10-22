@@ -79,5 +79,5 @@ zntt_unroll_1x9 benefits from [ETHFALCON solidity](https://github.com/ZKNoxHQ/ET
 | Function                   | Description               | gas cost | Tests Status |
 |------------------------|---------------------|---------------------|---------------------|
 | ETH_FALCON      | ZKnox: Use Keccak-ctr      | 102M | :white_check_mark: |
-| ETH_FALCON      | Starkware: Use Keccak-ctr      | 340M | :white_check_mark: |
+| ETH_FALCON      | Starkware+ ZKNOX  Keccak-ctr      | 340M | :white_check_mark: |
 | FALZKON      | Use Blake2s-ctr       |  41M | :white_check_mark:|
